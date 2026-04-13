@@ -1,0 +1,21 @@
+version: "3.9"
+
+services:
+  data-service:
+    build:
+      context: ./services/data-service
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data/csv:/app/data/csv:ro
+
+  ai-service:
+    build:
+      context: ./services/ai-service
+    ports:
+      - "8001:8001"
+    environment:
+      DATA_SERVICE_URL: http://data-service:8000
+    depends_on:
+      - data-service
+
