@@ -1,0 +1,5 @@
+.DS_Store
+.env
+__pycache__/
+k8s/ai-api-secret.yml
+k8s/*.bak

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Supplements Trends Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Serif:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Google Trends Supplements Analysis</p>
+          <h1>Supplements Dashboard</h1>
+          <p class="hero-text">
+            Suchinteresse, Dynamik und AI-Einordnung fuer fuenf Supplements in Deutschland.
+          </p>
+          <div class="hero-actions">
+            <button id="refreshButton" class="primary-button">Daten aktualisieren</button>
+            <span id="statusBadge" class="status-badge loading">Lade Daten...</span>
+          </div>
+        </div>
+        <div class="hero-note">
+          <p class="note-label">Setup</p>
+          <p class="note-value">Deutschland · letzter Monat</p>
+          <p class="note-detail">Proteinpulver, Kreatin, Vitamin D, Omega 3, Magnesium</p>
+        </div>
+      </header>
+
+      <main class="dashboard">
+        <section class="section-block">
+          <div class="section-head">
+            <h2>Kernsignale</h2>
+            <p>Die wichtigsten Kennzahlen auf einen Blick.</p>
+          </div>
+          <div id="kpiGrid" class="kpi-grid"></div>
+        </section>
+
+        <section class="section-block insight-layout">
+          <article class="panel insight-panel">
+            <div class="panel-head">
+              <h2>AI-Auswertung</h2>
+              <span id="analysisSource" class="chip">Quelle: -</span>
+            </div>
+            <p id="analysisText" class="analysis-text">Die Analyse wird geladen.</p>
+          </article>
+
+          <article class="panel ranking-panel">
+            <div class="panel-head">
+              <h2>Trend-Ranking</h2>
+              <span class="chip">Growth Percent</span>
+            </div>
+            <div id="rankingList" class="ranking-list"></div>
+          </article>
+        </section>
+
+        <section class="section-block chart-layout">
+          <article class="panel">
+            <div class="panel-head">
+              <h2>Interesse im Zeitverlauf</h2>
+              <span class="chip">Line Chart</span>
+            </div>
+            <div id="lineLegend" class="legend"></div>
+            <div id="lineChart" class="chart-surface chart-line"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-head">
+              <h2>Mean vs. Peak</h2>
+              <span class="chip">Vergleich</span>
+            </div>
+            <div id="barChart" class="chart-surface chart-bars"></div>
+          </article>
+        </section>
+
+        <section class="section-block">
+          <div class="section-head">
+            <h2>Detailtabelle</h2>
+            <p>Alle Metriken des Data Service.</p>
+          </div>
+          <div class="panel table-panel">
+            <table>
+              <thead>
+                <tr>
+                  <th>Begriff</th>
+                  <th>Mean</th>
+                  <th>Peak</th>
+                  <th>Trend</th>
+                  <th>Growth %</th>
+                </tr>
+              </thead>
+              <tbody id="metricsTable"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

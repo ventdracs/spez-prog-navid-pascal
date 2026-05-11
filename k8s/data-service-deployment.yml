@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: data-service
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: data-service
@@ -14,8 +14,17 @@ spec:
     spec:
       containers:
         - name: data-service
-          image: data-service:latest
+          image: spez-prog-navid-pascal-data-service:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
-
+          livenessProbe:
+            httpGet:
+              path: /live
+              port: 8000
+            initialDelaySeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8000
+            initialDelaySeconds: 5

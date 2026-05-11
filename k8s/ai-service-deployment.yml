@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: ai-service
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: ai-service
@@ -14,11 +14,34 @@ spec:
     spec:
       containers:
         - name: ai-service
-          image: ai-service:latest
+          image: spez-prog-navid-pascal-ai-service:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: DATA_SERVICE_URL
-              value: http://data-service:8000
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: DATA_SERVICE_URL
+            - name: OPENAI_MODEL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: OPENAI_MODEL
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ai-api-secret
+                  key: OPENAI_API_KEY
+                  optional: true
           ports:
-            - containerPort: 8001
-
+            - containerPort: 8000
+          livenessProbe:
+            httpGet:
+              path: /live
+              port: 8000
+            initialDelaySeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8000
+            initialDelaySeconds: 5

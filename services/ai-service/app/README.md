@@ -1,10 +1,17 @@
 # AI Service
 
-Dieses Verzeichnis ist der Einstiegspunkt fuer den spaeteren AI Service.
+Der AI Service ruft Kennzahlen per HTTP vom Data Service ab und erzeugt daraus
+eine kurze Interpretation fuer das Supplements-Projekt.
 
-Geplante Aufgaben:
+## Endpunkte
 
-- Kennzahlen vom Data Service per HTTP abrufen
-- Datenbasierte Interpretation erzeugen
-- Analyse als API-Endpunkt bereitstellen
+- `GET /analysis`
+- `GET /health`
+- `GET /live`
+- `GET /ready`
 
+## Umgebungsvariablen
+
+- `DATA_SERVICE_URL`
+- `OPENAI_API_KEY`
+- `OPENAI_MODEL`
