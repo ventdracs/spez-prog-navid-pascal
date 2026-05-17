@@ -45,10 +45,12 @@
         <section class="section-block insight-layout">
           <article class="panel insight-panel">
             <div class="panel-head">
-              <h2>AI-Auswertung</h2>
+              <h2>Management Summary</h2>
               <span id="analysisSource" class="chip">Quelle: -</span>
             </div>
-            <p id="analysisText" class="analysis-text">Die Analyse wird geladen.</p>
+            <div id="analysisSummaryGrid" class="analysis-summary-grid"></div>
+            <div id="analysisBulletList" class="analysis-bullet-list"></div>
+            <p id="analysisText" class="analysis-brief">Die Analyse wird geladen.</p>
           </article>
 
           <article class="panel ranking-panel">
@@ -58,6 +60,23 @@
             </div>
             <div id="rankingList" class="ranking-list"></div>
           </article>
+        </section>
+
+        <section class="section-block">
+          <div class="section-head">
+            <h2>Empfohlene Massnahmen</h2>
+            <p>Was ein Supplement-Unternehmen mit diesen Trends konkret tun sollte.</p>
+          </div>
+          <div id="useCaseGrid" class="use-case-grid"></div>
+        </section>
+
+        <section class="section-block">
+          <div class="section-head">
+            <h2>Wichtige Suchmuster</h2>
+            <p>Welche Themen, Fragen und Produktsignale die Nachfrage je Supplement treiben.</p>
+          </div>
+          <div id="queryHighlights" class="query-highlight-grid"></div>
+          <div id="queryCards" class="query-card-grid"></div>
         </section>
 
         <section class="section-block chart-layout">
