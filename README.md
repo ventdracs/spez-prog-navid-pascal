@@ -2,7 +2,7 @@
 
 ## Projektstatus
 
-Dieses Repository befindet sich aktuell im Aufbau fuer die Abgabe aus dem Modul. Die Zielsetzung ist eine containerisierte Anwendung mit mindestens zwei Services, die Google-Trends-Daten zur Kategorie `Supplements` verarbeitet, visualisiert und automatisch interpretiert. Der aktuelle Stand umfasst bereits die Projektstruktur, die Rohdatenbasis aus Google Trends sowie erste Docker- und Kubernetes-Artefakte. Die eigentliche Implementierung von Data Service, AI Service und Visualisierung ist als naechster Schritt vorgesehen.
+Dieses Repository enthaelt eine lauffaehige Analyseanwendung fuer Google-Trends-Daten zur Kategorie `Supplements`. Die Architektur besteht aus einem Data Service, einem AI Service und einem Frontend-Dashboard. Der Data Service verarbeitet sowohl `interest over time` als auch `top queries` und `rising queries`, der AI Service interpretiert diese Daten per HTTP, und das Frontend visualisiert die Ergebnisse.
 
 ## Aktuell gewaehlte Kategorie
 
@@ -82,41 +82,46 @@ Folgende Teile sind bereits vorhanden:
 - Projektstruktur fuer die Abgabe
 - CSV-Daten fuer alle fünf Suchbegriffe
 - `docker-compose.yml` als Startpunkt fuer die lokale Orchestrierung
-- Dockerfiles fuer `data-service` und `ai-service`
-- Kubernetes-Manifeste fuer zwei Deployments und zwei Services
+- Dockerfiles fuer `data-service`, `ai-service` und `frontend`
+- implementierter Data Service mit `/metrics`, `/timeseries`, `/queries` und `/overview`
+- implementierter AI Service mit kombinierter Kennzahlen-, Query- und Use-Case-Interpretation
+- Frontend-Dashboard mit KPI-Karten, Charts, Query-Signal-Ansicht und Business-Use-Case-Sektion
+- Kubernetes-Manifeste fuer Deployments, Services und Ingress
 - interne Planungsdatei `Workflow.md`
 
 Folgende Teile sind noch nicht final implementiert:
 
-- echter Data Service zum Einlesen und Auswerten der CSV-Dateien
-- echter AI Service fuer die automatische Interpretation
-- Visualisierungen
-- finale README-Antworten zu allen sieben Pflichtfragen
+- automatisierte Tests fuer die Services
 - abschliessender Pitch
+- moegliche Erweiterungen wie Opportunity Score oder persistente Historie
 
 ## Geplante Architektur
 
 ### Data Service
 
-Der Data Service soll die CSV-Dateien einlesen, bereinigen und Kennzahlen berechnen. Dazu gehoeren mindestens Mean, Peak und Trendrichtung. Die Ergebnisse sollen als JSON ueber HTTP bereitgestellt werden.
+Der Data Service liest die CSV-Dateien ein, bereinigt Sonderfaelle wie `<1`, Unicode-Whitespace, Prozentwerte und `Breakout` und berechnet Kennzahlen, Query-Signale und geschaeftliche Use Cases. Ueber HTTP stellt er Zeitreihen, Metrics, Top/Rising-Analysen und eine kombinierte Overview-Antwort bereit.
 
 ### AI Service
 
-Der AI Service soll die Kennzahlen vom Data Service per HTTP abrufen und daraus eine datenbasierte Interpretation erzeugen. Die AI dient dabei nicht als Chatbot, sondern als automatische Interpretationsschicht zwischen Rohdaten und Nutzer:innen.
+Der AI Service ruft die Kennzahlen, Query-Analysen und Business-Use-Cases vom Data Service per HTTP ab und erzeugt daraus eine datenbasierte Interpretation. Die AI dient dabei nicht als Chatbot, sondern als automatische Interpretationsschicht zwischen Rohdaten und Nutzer:innen.
 
 ### Visualisierung
 
-Geplant sind mindestens zwei Visualisierungen, voraussichtlich ein Zeitverlauf und ein Vergleich der Kennzahlen zwischen den Begriffen.
+Das Frontend zeigt mindestens zwei Visualisierungen: den Zeitverlauf aller Begriffe und einen Mean-vs.-Peak-Vergleich. Zusaetzlich visualisiert es Query-Highlights wie Breakouts, Overlap und Rising Momentum sowie drei konkrete Business Use Cases fuer Unternehmen.
 
 ## How To Start
 
-Der finale Startablauf ist noch nicht abgeschlossen, weil die Services derzeit nur als Struktur und Platzhalter vorliegen. Das vorgesehene Startkommando fuer den lokalen Betrieb lautet spaeter:
+Die Anwendung kann lokal ueber Docker Compose gestartet werden:
 
 ```bash
-docker compose up -d
+docker compose up --build -d
 ```
 
-Sobald die Services implementiert sind, wird dieser Abschnitt um konkrete Schritte und Endpunkte erweitert.
+Danach sind die Komponenten standardmaessig erreichbar unter:
+
+- `http://127.0.0.1:8000` fuer den Data Service
+- `http://127.0.0.1:8001` fuer den AI Service
+- `http://127.0.0.1:8080` fuer das Frontend
 
 ## Kubernetes
 
@@ -124,20 +129,20 @@ Im Ordner [k8s](/Users/pascalnoack/Desktop/spez-prog-navid-pascal/k8s) liegen be
 
 - `data-service`
 - `ai-service`
+- `frontend`
 
-Diese Dateien bilden die Zielstruktur gemaess Aufgabenstellung ab, sind aber noch nicht mit einer finalen Anwendungslogik verbunden.
+Die Manifeste bilden die Zielarchitektur fuer Deployments, Services und Ingress ab.
 
 ## Naechste Schritte
 
 Die naechsten Entwicklungsschritte sind:
 
-1. Data Service implementieren
-2. CSV-Parsing und Kennzahlenberechnung einbauen
-3. AI Service mit HTTP-Kommunikation zum Data Service umsetzen
-4. Visualisierungen integrieren
-5. Docker Compose und Kubernetes gegen die echten Services testen
-6. README fuer die finale Abgabe inhaltlich vervollstaendigen
+1. Services in Docker Compose und Kubernetes end-to-end testen
+2. README fuer die finale Abgabe inhaltlich straffen
+3. Pitch vorbereiten
+4. Optionalen Opportunity Score fuer Rankings ergaenzen
+5. Tests und Monitoring erweitern
 
 ## Hinweis zum aktuellen Stand
 
-Diese README dokumentiert bewusst den Zwischenstand des Projekts. Sie ist noch nicht die finale Abgabeversion fuer Teil 1 der Aufgabenstellung, sondern eine saubere Arbeitsgrundlage, die spaeter zu einer benotungsreifen Endfassung ausgebaut wird.
+Die Anwendung ist funktional umgesetzt. Die verbleibenden Arbeiten liegen vor allem in Verifikation, Praesentation und moeglichen fachlichen Erweiterungen.
