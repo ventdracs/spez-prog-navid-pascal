@@ -72,13 +72,13 @@ Dadurch werden die Daten nicht nur technisch sichtbar, sondern auch fachlich lei
 
 ## 6. Herausforderungen und Learnings
 
-Eine wichtige Herausforderung war die saubere Verarbeitung der CSV-Daten ohne manuelle Änderung der Dateien.
-Leere Werte, der Ausdruck `<1`, Unicode-Whitespace, Prozentwerte wie `4.300 %` und der Sonderfall `Breakout` mussten im Code behandelt werden.
-Eine weitere Herausforderung war die Überführung der Vorlesungsbeispiele in eine echte Drei-Service-Architektur mit Data Service, AI Service und Frontend.
-Besonders aufwendig war die Kubernetes-Konfiguration: Für jeden Service mussten Deployment, Service-Objekt, Ports, Selektoren, Probes und Image-Namen konsistent aufeinander abgestimmt werden, damit Pods sauber starten und untereinander per HTTP erreichbar bleiben.
-Zusätzlich kamen Ingress-Routen für `dashboard.localhost` und `ai.localhost`, eine ConfigMap für gemeinsame Einstellungen und ein Sealed Secret für den OpenAI-Key dazu, sodass der Key nicht im Klartext im Repository liegt.
-Für den Betrieb in Docker Compose und Kubernetes mussten Pfade, Ports, Service-Namen und Probes parallel konsistent gehalten werden, was ein gutes Verständnis beider Welten erfordert hat.
-Gelernt haben wir vor allem, dass saubere Schnittstellen, reproduzierbare Datenaufbereitung und eine klare Trennung zwischen Zeitreihenanalyse und Query-Analyse für ein funktionierendes Gesamtsystem entscheidend sind.
+Die grösste fachliche Hürde lag im Frontend, weil wir uns klare Vorstellungen davon gemacht hatten, wie die Informationen am Ende aussehen sollten, aber die Umsetzung deutlich aufwendiger war als gedacht.
+Vor allem die Aufteilung von Kennzahlen, Diagrammen, Query-Highlights und Business-Use-Case-Karten musste mehrmals überarbeitet werden, bis das Dashboard wirklich verständlich war und die richtigen Informationen im Vordergrund standen.
+An mehreren Stellen tauchten bestimmte Daten im Dashboard zunächst gar nicht auf, obwohl es keinen offensichtlichen Grund dafür gab; in solchen Fällen mussten wir die Datenflüsse vom Data Service über den AI Service bis ins Frontend einzeln nachvollziehen, um die Ursache überhaupt einzugrenzen.
+Eine zweite grosse Herausforderung war Kubernetes, mit dem wir vorher noch nie gearbeitet hatten und das uns am Anfang ehrlich gesagt überfordert hat.
+Es hat einige Zeit gebraucht, bis wir wirklich verstanden haben, was wir genau anlegen, wozu Deployments, Services und Ingress jeweils gut sind und wie alles zusammenhängt.
+Genau daraus ist aber auch unser stärkstes Learning entstanden: Kubernetes wirkt anfangs sehr abstrakt, macht aber gerade für eine Anwendung aus mehreren Services und mehreren Komponenten vieles spürbar einfacher und nachvollziehbarer.
+Insgesamt haben wir mitgenommen, wie wichtig saubere Schnittstellen, gute Visualisierungsentscheidungen und ein ruhiges, schrittweises Herantasten an neue Technologien für ein funktionierendes Gesamtsystem sind.
 
 ## 7. Zukunftsvision
 
