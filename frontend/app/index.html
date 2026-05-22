@@ -3,122 +3,177 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Supplements Trends Dashboard</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Serif:ital@0;1&display=swap"
-      rel="stylesheet"
-    />
+    <title>Supplement-Trends-Dashboard</title>
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
-    <div class="page-shell">
-      <header class="hero">
-        <div class="hero-copy">
-          <p class="eyebrow">Google Trends Supplements Analysis</p>
-          <h1>Supplements Dashboard</h1>
-          <p class="hero-text">
-            Suchinteresse, Dynamik und AI-Einordnung fuer fuenf Supplements in Deutschland.
-          </p>
-          <div class="hero-actions">
-            <button id="refreshButton" class="primary-button">Daten aktualisieren</button>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <span class="brand-mark">ST</span>
+          <div>
+            <strong>Supplement-Trends</strong>
+            <span>Marktanalyse</span>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav" aria-label="Dashboard Navigation">
+          <a class="nav-link active" href="#overview">Überblick</a>
+          <a class="nav-link" href="#summary">Zusammenfassung</a>
+          <a class="nav-link" href="#actions">Maßnahmen</a>
+          <a class="nav-link" href="#queries">Suchanfragen</a>
+          <a class="nav-link" href="#charts">Diagramme</a>
+          <a class="nav-link" href="#metrics">Metriken</a>
+        </nav>
+
+        <div class="sidebar-meta">
+          <span>Region</span>
+          <strong>Deutschland</strong>
+          <span>Zeitraum</span>
+          <strong>Letzter Monat</strong>
+        </div>
+      </aside>
+
+      <div class="app-main">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Google-Trends-Analyse</p>
+            <h1>Supplement-Dashboard</h1>
+          </div>
+          <div class="topbar-actions">
             <span id="statusBadge" class="status-badge loading">Lade Daten...</span>
+            <button id="refreshButton" class="primary-button">Daten aktualisieren</button>
           </div>
-        </div>
-        <div class="hero-note">
-          <p class="note-label">Setup</p>
-          <p class="note-value">Deutschland · letzter Monat</p>
-          <p class="note-detail">Proteinpulver, Kreatin, Vitamin D, Omega 3, Magnesium</p>
-        </div>
-      </header>
+        </header>
 
-      <main class="dashboard">
-        <section class="section-block">
-          <div class="section-head">
-            <h2>Kernsignale</h2>
-            <p>Die wichtigsten Kennzahlen auf einen Blick.</p>
-          </div>
-          <div id="kpiGrid" class="kpi-grid"></div>
-        </section>
-
-        <section class="section-block insight-layout">
-          <article class="panel insight-panel">
-            <div class="panel-head">
-              <h2>Management Summary</h2>
-              <span id="analysisSource" class="chip">Quelle: -</span>
+        <main class="dashboard">
+          <section id="overview" class="dashboard-view active" data-view="overview">
+            <div class="page-header">
+              <div>
+                <p class="eyebrow">Management-Überblick</p>
+                <h2>Suchnachfrage, Query-Dynamik und Business-Signale</h2>
+                <p>
+                  Kompakte Marktübersicht für Proteinpulver, Kreatin, Vitamin D, Omega 3 und Magnesium.
+                </p>
+              </div>
             </div>
-            <div id="analysisSummaryGrid" class="analysis-summary-grid"></div>
-            <div id="analysisBulletList" class="analysis-bullet-list"></div>
-            <p id="analysisText" class="analysis-brief">Die Analyse wird geladen.</p>
-          </article>
 
-          <article class="panel ranking-panel">
-            <div class="panel-head">
-              <h2>Trend-Ranking</h2>
-              <span class="chip">Growth Percent</span>
+            <div class="section-block">
+              <div class="section-head">
+                <h2>Kernsignale</h2>
+                <p>Die wichtigsten Kennzahlen auf einen Blick.</p>
+              </div>
+              <div id="kpiGrid" class="kpi-grid"></div>
             </div>
-            <div id="rankingList" class="ranking-list"></div>
-          </article>
-        </section>
+          </section>
 
-        <section class="section-block">
-          <div class="section-head">
-            <h2>Empfohlene Massnahmen</h2>
-            <p>Was ein Supplement-Unternehmen mit diesen Trends konkret tun sollte.</p>
-          </div>
-          <div id="useCaseGrid" class="use-case-grid"></div>
-        </section>
-
-        <section class="section-block">
-          <div class="section-head">
-            <h2>Wichtige Suchmuster</h2>
-            <p>Welche Themen, Fragen und Produktsignale die Nachfrage je Supplement treiben.</p>
-          </div>
-          <div id="queryHighlights" class="query-highlight-grid"></div>
-          <div id="queryCards" class="query-card-grid"></div>
-        </section>
-
-        <section class="section-block chart-layout">
-          <article class="panel">
-            <div class="panel-head">
-              <h2>Interesse im Zeitverlauf</h2>
-              <span class="chip">Line Chart</span>
+          <section id="summary" class="dashboard-view" data-view="summary">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Analyse</p>
+                <h2>Management-Zusammenfassung</h2>
+                <p>Verdichtete Interpretation der Nachfrage-, Wachstums- und Query-Signale.</p>
+              </div>
             </div>
-            <div id="lineLegend" class="legend"></div>
-            <div id="lineChart" class="chart-surface chart-line"></div>
-          </article>
 
-          <article class="panel">
-            <div class="panel-head">
-              <h2>Mean vs. Peak</h2>
-              <span class="chip">Vergleich</span>
+            <div class="section-block insight-layout">
+              <article class="panel insight-panel">
+                <div class="panel-head">
+                  <h2>Management-Zusammenfassung</h2>
+                  <span id="analysisSource" class="chip">Quelle: -</span>
+                </div>
+                <div id="analysisSummaryGrid" class="analysis-summary-grid"></div>
+                <div id="analysisBulletList" class="analysis-bullet-list"></div>
+                <div id="analysisText" class="analysis-brief">Die Analyse wird geladen.</div>
+              </article>
+
+              <article class="panel ranking-panel">
+                <div class="panel-head">
+                  <h2>Trend-Ranking</h2>
+                  <span class="chip">Wachstumsrate</span>
+                </div>
+                <div id="rankingList" class="ranking-list"></div>
+              </article>
             </div>
-            <div id="barChart" class="chart-surface chart-bars"></div>
-          </article>
-        </section>
+          </section>
 
-        <section class="section-block">
-          <div class="section-head">
-            <h2>Detailtabelle</h2>
-            <p>Alle Metriken des Data Service.</p>
-          </div>
-          <div class="panel table-panel">
-            <table>
-              <thead>
-                <tr>
-                  <th>Begriff</th>
-                  <th>Mean</th>
-                  <th>Peak</th>
-                  <th>Trend</th>
-                  <th>Growth %</th>
-                </tr>
-              </thead>
-              <tbody id="metricsTable"></tbody>
-            </table>
-          </div>
-        </section>
-      </main>
+          <section id="actions" class="dashboard-view" data-view="actions">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Empfehlungen</p>
+                <h2>Empfohlene Maßnahmen</h2>
+                <p>Was ein Supplement-Unternehmen mit diesen Trends konkret tun sollte.</p>
+              </div>
+            </div>
+            <div id="useCaseGrid" class="use-case-grid"></div>
+          </section>
+
+          <section id="queries" class="dashboard-view" data-view="queries">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Suchmuster</p>
+                <h2>Wichtige Suchmuster</h2>
+                <p>Welche Themen, Fragen und Produktsignale die Nachfrage je Supplement treiben.</p>
+              </div>
+            </div>
+            <div id="queryHighlights" class="query-highlight-grid"></div>
+            <div id="queryCards" class="query-card-grid"></div>
+          </section>
+
+          <section id="charts" class="dashboard-view" data-view="charts">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Visualisierung</p>
+                <h2>Diagramme</h2>
+                <p>Zeitverlauf, Durchschnitt und Peak als kompakte visuelle Auswertung.</p>
+              </div>
+            </div>
+
+            <div class="chart-layout">
+              <article class="panel">
+                <div class="panel-head">
+                  <h2>Interesse im Zeitverlauf</h2>
+                  <span class="chip">Liniendiagramm</span>
+                </div>
+                <div id="lineLegend" class="legend"></div>
+                <div id="lineChart" class="chart-surface chart-line"></div>
+              </article>
+
+              <article class="panel">
+                <div class="panel-head">
+                  <h2>Durchschnitt vs. Peak</h2>
+                  <span class="chip">Vergleich</span>
+                </div>
+                <div id="barChart" class="chart-surface chart-bars"></div>
+              </article>
+            </div>
+          </section>
+
+          <section id="metrics" class="dashboard-view" data-view="metrics">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Datentabelle</p>
+                <h2>Detailtabelle</h2>
+                <p>Alle Metriken des Data Service.</p>
+              </div>
+            </div>
+            <div class="panel table-panel">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Begriff</th>
+                    <th>Durchschnitt</th>
+                    <th>Peak</th>
+                    <th>Trend</th>
+                    <th>Wachstum %</th>
+                  </tr>
+                </thead>
+                <tbody id="metricsTable"></tbody>
+              </table>
+            </div>
+          </section>
+        </main>
+      </div>
     </div>
 
     <script src="./app.js"></script>

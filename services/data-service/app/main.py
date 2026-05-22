@@ -15,7 +15,7 @@ BUSINESS_USE_CASE_DEFINITIONS = [
     {
         "id": "content_education",
         "title": "Content & Education",
-        "goal": "Informationsbeduerfnis in SEO-, Ratgeber- und Awareness-Content uebersetzen",
+        "goal": "Informationsbedürfnis in SEO-, Ratgeber- und Awareness-Content übersetzen",
         "keywords": [
             "wirkung",
             "was ist",
@@ -34,15 +34,15 @@ BUSINESS_USE_CASE_DEFINITIONS = [
             "fuer was",
         ],
         "actions": [
-            "SEO-Landingpages und Ratgeber fuer die dominanten Fragestellungen priorisieren.",
-            "FAQ-Module und kurze Educational Ads auf die haeufigsten Wirkungs- und Anwendungsfragen ausrichten.",
+            "SEO-Landingpages und Ratgeber für die dominanten Fragestellungen priorisieren.",
+            "FAQ-Module und kurze Educational Ads auf die häufigsten Wirkungs- und Anwendungsfragen ausrichten.",
             "Content-Kalender mit Fokus auf Suchintention statt nur auf Produktnamen planen.",
         ],
     },
     {
         "id": "product_portfolio",
-        "title": "Product & Formulation",
-        "goal": "Nachfrage nach Formaten, Wirkstoffformen und Produktkombinationen frueh erkennen",
+        "title": "Produkt & Formulierung",
+        "goal": "Nachfrage nach Formaten, Wirkstoffformen und Produktkombinationen früh erkennen",
         "keywords": [
             "monohydrat",
             "glycinate",
@@ -74,8 +74,8 @@ BUSINESS_USE_CASE_DEFINITIONS = [
     },
     {
         "id": "channel_activation",
-        "title": "Channel & Retail Activation",
-        "goal": "Haendler-, Marken- und Kaufinteresse fuer Vertrieb, Retail Media und Partnersteuerung nutzen",
+        "title": "Channel & Retail-Aktivierung",
+        "goal": "Händler-, Marken- und Kaufinteresse für Vertrieb, Retail Media und Partnersteuerung nutzen",
         "keywords": [
             "dm",
             "amazon",
@@ -104,9 +104,9 @@ BUSINESS_USE_CASE_DEFINITIONS = [
             "naturtreu",
         ],
         "actions": [
-            "Retail-Media- und Marktplatzbudgets auf die staerksten Channel-Signale konzentrieren.",
-            "Partner- und Haendlergespraeche mit den auffaelligsten Suchbelegen untermauern.",
-            "Wettbewerber- und Markenpull im Vertrieb frueh monitoren und Gegenmassnahmen planen.",
+            "Retail-Media- und Marktplatzbudgets auf die stärksten Channel-Signale konzentrieren.",
+            "Partner- und Händlergespräche mit den auffälligsten Suchbelegen untermauern.",
+            "Wettbewerber- und Markenpull im Vertrieb früh monitoren und Gegenmaßnahmen planen.",
         ],
     },
 ]
@@ -625,21 +625,21 @@ def build_use_case_reason(use_case_id, term_name, signal, metric):
         )
         return (
             f"{term_name} zeigt starkes Informationsinteresse mit Suchmustern wie "
-            f"'{top_query or '-'}' und '{rising_query or '-'}'. Das spricht fuer "
+            f"'{top_query or '-'}' und '{rising_query or '-'}'. Das spricht für "
             f"Educational Content bei gleichzeitigem Signal aus {growth_text}."
         )
 
     if use_case_id == "product_portfolio":
         return (
-            f"Bei {term_name} verdichten sich konkrete Formulierungs- und Formatwuensche. "
+            f"Bei {term_name} verdichten sich konkrete Formulierungs- und Formatwünsche. "
             f"Top-Signale wie '{top_query or '-'}' und dynamische Trigger wie "
             f"'{rising_query or '-'}' ({rising_label or '-'}) liefern verwertbare Hinweise "
-            "fuer SKU-Planung und Produktdetailseiten."
+            "für SKU-Planung und Produktdetailseiten."
         )
 
     return (
-        f"{term_name} zeigt haendler- und markennahe Nachfrage mit Queries wie "
-        f"'{top_query or '-'}' und '{rising_query or '-'}'. Das ist ein Signal fuer "
+        f"{term_name} zeigt händler- und markennahe Nachfrage mit Queries wie "
+        f"'{top_query or '-'}' und '{rising_query or '-'}'. Das ist ein Signal für "
         "Retail Media, Vertrieb und Wettbewerbsmonitoring."
     )
 

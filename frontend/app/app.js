@@ -1,4 +1,4 @@
-const palette = ["#D95D39", "#F4A261", "#14705F", "#2A9D8F", "#6C8A3B"];
+const palette = ["#111827", "#475467", "#667085", "#98A2B3", "#D0D5DD"];
 
 function getApiBaseUrl() {
   const { protocol, hostname, port } = window.location;
@@ -31,6 +31,47 @@ const queryCards = document.getElementById("queryCards");
 const lineLegend = document.getElementById("lineLegend");
 const lineChart = document.getElementById("lineChart");
 const barChart = document.getElementById("barChart");
+const navLinks = [...document.querySelectorAll(".nav-link")];
+const dashboardViews = [...document.querySelectorAll(".dashboard-view")];
+const analysisKeywords = [
+  "Top Queries",
+  "Rising Queries",
+  "Breakouts",
+  "Breakout",
+  "Suchinteresse",
+  "Wachstum",
+  "Magnesium",
+  "Kreatin",
+  "Proteinpulver",
+  "Vitamin D",
+  "Omega 3",
+  "Content",
+  "Education",
+  "Produkt",
+  "Retail",
+  "Channel",
+  "SEO",
+];
+
+function getActiveViewId() {
+  const hashView = window.location.hash.replace("#", "");
+
+  if (dashboardViews.some((view) => view.id === hashView)) {
+    return hashView;
+  }
+
+  return "overview";
+}
+
+function activateView(viewId = getActiveViewId()) {
+  dashboardViews.forEach((view) => {
+    view.classList.toggle("active", view.id === viewId);
+  });
+
+  navLinks.forEach((link) => {
+    link.classList.toggle("active", link.getAttribute("href") === `#${viewId}`);
+  });
+}
 
 function setStatus(label, state) {
   statusBadge.textContent = label;
@@ -57,6 +98,91 @@ function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function emphasizeKeywords(value) {
+  return [...analysisKeywords]
+    .sort((a, b) => b.length - a.length)
+    .reduce((text, keyword) => {
+      const escapedKeyword = escapeHtml(keyword);
+      const pattern = new RegExp(
+        `(^|[^A-Za-z0-9])(${escapeRegExp(escapedKeyword)})(?=$|[^A-Za-z0-9])`,
+        "gi",
+      );
+
+      return text.replace(pattern, "$1<strong>$2</strong>");
+    }, value);
+}
+
+function renderInlineAnalysis(value) {
+  const markdownStrong = [];
+  const withPlaceholders = String(value).replace(/\*\*(.+?)\*\*/g, (_, content) => {
+    const token = `@@strong_${markdownStrong.length}@@`;
+    markdownStrong.push(`<strong>${escapeHtml(content)}</strong>`);
+    return token;
+  });
+
+  let html = emphasizeKeywords(escapeHtml(withPlaceholders));
+
+  markdownStrong.forEach((replacement, index) => {
+    html = html.replace(`@@strong_${index}@@`, replacement);
+  });
+
+  return html;
+}
+
+function splitAnalysisLines(value) {
+  const text = String(value ?? "").replace(/\r/g, "").trim();
+
+  if (!text) {
+    return [];
+  }
+
+  const explicitLines = text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  if (explicitLines.length > 1) {
+    return explicitLines;
+  }
+
+  return (
+    text
+      .match(/[^.!?]+[.!?]+|[^.!?]+$/g)
+      ?.map((line) => line.trim())
+      .filter(Boolean) ?? [text]
+  );
+}
+
+function renderAnalysisText(value) {
+  const lines = splitAnalysisLines(value)
+    .map((line) => line.replace(/^#{1,6}\s*/, ""))
+    .map((line) => line.replace(/^[-*•]\s*/, ""))
+    .map((line) => line.replace(/^\d+[.)]\s*/, ""))
+    .filter(Boolean)
+    .slice(0, 6);
+
+  if (lines.length === 0) {
+    return "Keine Analyse verfügbar.";
+  }
+
+  return lines
+    .map((line, index) => {
+      const marker = index < lines.length - 1 ? "•" : "→";
+
+      return `
+        <div class="analysis-line">
+          <span class="analysis-line-marker">${marker}</span>
+          <span>${renderInlineAnalysis(line)}</span>
+        </div>
+      `;
+    })
+    .join("");
+}
+
 function formatPercent(value) {
   if (value === null || value === undefined) {
     return "-";
@@ -73,16 +199,77 @@ function formatRisingLabel(query) {
   return query.is_breakout ? "Breakout" : formatPercent(query.increase_percent);
 }
 
+function formatIncreaseLabel(query) {
+  if (!query) {
+    return "-";
+  }
+
+  if (query.is_breakout) {
+    return "Breakout";
+  }
+
+  if (query.increase_percent === null || query.increase_percent === undefined) {
+    return "-";
+  }
+
+  const prefix = query.increase_percent > 0 ? "+" : "";
+  return `${prefix}${formatPercent(query.increase_percent)}`;
+}
+
+function getIncreaseClass(query) {
+  if (!query || query.increase_percent === null || query.increase_percent === undefined) {
+    return query?.is_breakout ? "breakout" : "neutral";
+  }
+
+  if (query.increase_percent > 0) {
+    return "positive";
+  }
+
+  if (query.increase_percent < 0) {
+    return "negative";
+  }
+
+  return "neutral";
+}
+
 function formatPriority(priority) {
   if (priority === "high") {
-    return "High Priority";
+    return "Hohe Priorität";
   }
 
   if (priority === "medium") {
-    return "Medium Priority";
+    return "Mittlere Priorität";
   }
 
-  return "Observe";
+  return "Beobachten";
+}
+
+function formatTrendLabel(trend) {
+  if (trend === "increasing") {
+    return "steigend";
+  }
+
+  if (trend === "decreasing") {
+    return "fallend";
+  }
+
+  if (trend === "stable") {
+    return "stabil";
+  }
+
+  return trend ?? "-";
+}
+
+function formatAnalysisSource(source) {
+  if (source === "rules") {
+    return "Regeln";
+  }
+
+  if (source === "openai") {
+    return "OpenAI";
+  }
+
+  return source ?? "-";
 }
 
 function stripMarkdown(value) {
@@ -114,9 +301,9 @@ function buildAnalysisSummary(data, useCases, queryHighlightsData) {
 
   const cards = [
     {
-      label: "Groesstes Basissignal",
+      label: "Größtes Basissignal",
       value: strongestMean?.name ?? "-",
-      meta: strongestMean ? `Mean ${formatNumber(strongestMean.mean)}` : "-",
+      meta: strongestMean ? `Durchschnitt ${formatNumber(strongestMean.mean)}` : "-",
     },
     {
       label: "Wachstumsgewinner",
@@ -124,7 +311,7 @@ function buildAnalysisSummary(data, useCases, queryHighlightsData) {
       meta: strongestGrowth ? `${formatPercent(strongestGrowth.growth_percent)} Wachstum` : "-",
     },
     {
-      label: "Wichtigste Massnahme",
+      label: "Wichtigste Maßnahme",
       value: topUseCase?.title ?? "-",
       meta: topUseCase ? topUseCase.recommended_term : "-",
     },
@@ -158,7 +345,7 @@ function buildAnalysisBullets(data, useCases, queryHighlightsData) {
 
   const bullets = [
     strongestMean
-      ? `${strongestMean.name} hat aktuell die staerkste stabile Basisnachfrage.`
+      ? `${strongestMean.name} hat aktuell die stärkste stabile Basisnachfrage.`
       : null,
     strongestGrowth
       ? `${strongestGrowth.name} ist der klarste kurzfristige Wachstumshebel.`
@@ -167,7 +354,7 @@ function buildAnalysisBullets(data, useCases, queryHighlightsData) {
       ? `${overlapLeader.name} verbindet bestehende Nachfrage und neue Suchdynamik am saubersten.`
       : null,
     topUseCase
-      ? `${topUseCase.title} ist aktuell die wichtigste Management-Prioritaet.`
+      ? `${topUseCase.title} ist aktuell die wichtigste Management-Priorität.`
       : null,
   ].filter(Boolean);
 
@@ -192,12 +379,21 @@ function buildAnalysisBrief(data, useCases) {
   const topUseCase = useCases[0];
 
   const parts = [
-    strongestMean ? `${strongestMean.name} liefert derzeit die staerkste Sichtbarkeit.` : null,
+    strongestMean ? `${strongestMean.name} liefert derzeit die stärkste Sichtbarkeit.` : null,
     strongestGrowth ? `${strongestGrowth.name} ist der beste Wachstumshebel.` : null,
     topUseCase ? `Unternehmerisch sollte zuerst ${topUseCase.title.toLowerCase()} priorisiert werden.` : null,
   ].filter(Boolean);
 
   analysisText.textContent = parts.join(" ");
+}
+
+function buildDashboardAnalysisText(analysis, data, useCases) {
+  if (analysis) {
+    analysisText.innerHTML = renderAnalysisText(analysis);
+    return;
+  }
+
+  buildAnalysisBrief(data, useCases);
 }
 
 function getUseCaseLabel(useCaseId) {
@@ -218,28 +414,28 @@ function getUseCaseHeadline(useCase) {
   }
 
   if (useCase.id === "product_portfolio") {
-    return `${useCase.recommended_term} fuer Produktplanung nutzen`;
+    return `${useCase.recommended_term} für Produktplanung nutzen`;
   }
 
-  return `${useCase.recommended_term} fuer Channel-Steuerung nutzen`;
+  return `${useCase.recommended_term} für Channel-Steuerung nutzen`;
 }
 
 function getQueryMeaning(insight) {
   const summary = insight.summary;
 
   if (summary.breakout_count >= 8) {
-    return "Viele neue Nischensignale: gut fuer Tests, Kampagnen und Trend-Monitoring.";
+    return "Viele neue Nischensignale: gut für Tests, Kampagnen und Trend-Monitoring.";
   }
 
   if (summary.shared_query_count >= 15) {
-    return "Hohe Ueberschneidung: Thema ist bereits relevant und gewinnt gleichzeitig an Fahrt.";
+    return "Hohe Überschneidung: Thema ist bereits relevant und gewinnt gleichzeitig an Fahrt.";
   }
 
   if ((summary.rising_average_increase_percent ?? 0) >= 120) {
     return "Starkes Momentum: Suchinteresse verschiebt sich gerade sichtbar in neue Themen.";
   }
 
-  return "Solide Nachfrage: sinnvoll fuer kontinuierliche Beobachtung und Content-Optimierung.";
+  return "Solide Nachfrage: sinnvoll für kontinuierliche Beobachtung und Content-Optimierung.";
 }
 
 function buildKpis(terms) {
@@ -252,12 +448,12 @@ function buildKpis(terms) {
 
   const cards = [
     {
-      label: "Staerkstes Interesse",
+      label: "Stärkstes Interesse",
       value: strongestMean.name,
-      meta: `Mean ${formatNumber(strongestMean.mean)}`,
+      meta: `Durchschnitt ${formatNumber(strongestMean.mean)}`,
     },
     {
-      label: "Hoechster Peak",
+      label: "Höchster Peak",
       value: strongestPeak.peak,
       meta: strongestPeak.name,
     },
@@ -320,7 +516,7 @@ function buildTable(terms) {
           <td><strong>${escapeHtml(term.name)}</strong></td>
           <td>${formatNumber(term.mean)}</td>
           <td>${formatNumber(term.peak)}</td>
-          <td><span class="trend-pill ${escapeHtml(term.trend)}">${escapeHtml(term.trend)}</span></td>
+          <td><span class="trend-pill ${escapeHtml(term.trend)}">${escapeHtml(formatTrendLabel(term.trend))}</span></td>
           <td>${formatNumber(term.growth_percent)}%</td>
         </tr>
       `,
@@ -332,7 +528,7 @@ function buildUseCases(useCases) {
   if (!useCases || useCases.length === 0) {
     useCaseGrid.innerHTML = `
       <article class="panel empty-panel">
-        <p class="empty-title">Noch keine Business Use Cases verfuegbar</p>
+        <p class="empty-title">Noch keine Business Use Cases verfügbar</p>
         <p class="empty-copy">Sobald die Query-Analyse geladen ist, erscheinen hier konkrete Unternehmenshebel.</p>
       </article>
     `;
@@ -343,66 +539,109 @@ function buildUseCases(useCases) {
     .map((useCase) => {
       const topEvidence = useCase.top_evidence;
       const risingEvidence = useCase.rising_evidence;
-      const actions = (useCase.actions ?? []).slice(0, 1);
-      const supportingQueries = (useCase.supporting_queries ?? []).slice(0, 3);
+      const primaryAction = (useCase.actions ?? [])[0];
+      const actions = useCase.actions ?? [];
+      const supportingQueries = (useCase.supporting_queries ?? []).slice(0, 5);
 
       return `
         <article class="panel use-case-card">
           <div class="panel-head">
-            <h2>${escapeHtml(getUseCaseHeadline(useCase))}</h2>
+            <div>
+              <p class="use-case-kicker">${escapeHtml(getUseCaseLabel(useCase.id))}</p>
+              <h2>${escapeHtml(getUseCaseHeadline(useCase))}</h2>
+            </div>
             <span class="chip priority-chip ${escapeHtml(useCase.priority)}">${escapeHtml(formatPriority(useCase.priority))}</span>
           </div>
 
-          <p class="use-case-kicker">${escapeHtml(getUseCaseLabel(useCase.id))}</p>
           <p class="use-case-goal">${escapeHtml(useCase.goal)}</p>
 
-          <div class="use-case-focus">
-            <span class="kpi-label">Warum jetzt?</span>
-            <strong>${escapeHtml(useCase.recommended_term)}</strong>
-            <span class="kpi-meta">${formatNumber(useCase.breakout_match_count)} Breakout-Signale · Score ${formatNumber(useCase.score)}</span>
-          </div>
-
-          <p class="use-case-why">${escapeHtml(useCase.why_now)}</p>
-
-          <div class="use-case-evidence-grid">
-            <div class="query-stat">
-              <span>Aktuelles Hauptsignal</span>
-              <strong>${escapeHtml(topEvidence ? topEvidence.query : "-")}</strong>
-              <small>${topEvidence ? `Interesse ${formatNumber(topEvidence.search_interest)}` : "-"}</small>
+          <div class="signal-strip">
+            <div>
+              <span>Fokus</span>
+              <strong>${escapeHtml(useCase.recommended_term)}</strong>
             </div>
-            <div class="query-stat">
-              <span>Neues Wachstumssignal</span>
-              <strong>${escapeHtml(risingEvidence ? risingEvidence.query : "-")}</strong>
-              <small>${escapeHtml(formatRisingLabel(risingEvidence))}</small>
+            <div>
+              <span>Neue Signale</span>
+              <strong>${formatNumber(useCase.breakout_match_count)}</strong>
+            </div>
+            <div>
+              <span>Relevanz</span>
+              <strong>${formatNumber(useCase.score)}</strong>
             </div>
           </div>
 
-          <div class="query-tag-group">
-            <p class="kpi-label">Wichtige Suchthemen</p>
-            <div class="query-tags">${renderTagList(supportingQueries, "Keine passenden Queries")}</div>
+          <div class="primary-action">
+            <p class="kpi-label">Nächster Schritt</p>
+            <p>${escapeHtml(primaryAction ?? "Keine konkrete Maßnahme verfügbar.")}</p>
           </div>
 
-          <div class="query-tag-group">
-            <p class="kpi-label">Naechster Schritt</p>
+          <details class="detail-panel">
+            <summary>Begründung anzeigen</summary>
+            <p class="use-case-why">${escapeHtml(useCase.why_now)}</p>
+          </details>
+
+          <details class="detail-panel">
+            <summary>Signale und Suchthemen anzeigen</summary>
+            <div class="use-case-evidence-grid">
+              <div class="query-stat">
+                <span>Aktuelles Hauptsignal</span>
+                <strong>${escapeHtml(topEvidence ? topEvidence.query : "-")}</strong>
+                <small>${topEvidence ? `Interesse ${formatNumber(topEvidence.search_interest)}` : "-"}</small>
+              </div>
+              <div class="query-stat">
+                <span>Neues Wachstumssignal</span>
+                <strong>${escapeHtml(risingEvidence ? risingEvidence.query : "-")}</strong>
+                <small>${escapeHtml(formatRisingLabel(risingEvidence))}</small>
+              </div>
+            </div>
+            <div class="query-tag-group">
+              <p class="kpi-label">Wichtige Suchthemen</p>
+              <div class="query-tags">${renderTagList(supportingQueries, "Keine passenden Queries")}</div>
+            </div>
+          </details>
+
+          <details class="detail-panel">
+            <summary>Weitere Maßnahmen anzeigen</summary>
             <div class="use-case-actions">
               ${actions
                 .map((action) => `<p class="use-case-action">${escapeHtml(action)}</p>`)
                 .join("")}
             </div>
-          </div>
+          </details>
         </article>
       `;
     })
     .join("");
 }
 
-function renderTagList(values, fallback = "Keine Auffaelligkeit") {
+function renderTagList(values, fallback = "Keine Auffälligkeit") {
   if (!values || values.length === 0) {
     return `<span class="query-tag muted">${escapeHtml(fallback)}</span>`;
   }
 
   return values
     .map((value) => `<span class="query-tag">${escapeHtml(value)}</span>`)
+    .join("");
+}
+
+function renderQueryRows(rows, emptyLabel) {
+  if (!rows || rows.length === 0) {
+    return `<li class="query-ranked-empty">${escapeHtml(emptyLabel)}</li>`;
+  }
+
+  return rows
+    .map(
+      (query, index) => `
+        <li class="query-ranked-row">
+          <span class="query-rank">${index + 1}</span>
+          <span class="query-ranked-main">
+            <strong>${escapeHtml(query.query)}</strong>
+            <small>Interesse ${formatNumber(query.search_interest)}</small>
+          </span>
+          <span class="query-change-pill ${getIncreaseClass(query)}">${escapeHtml(formatIncreaseLabel(query))}</span>
+        </li>
+      `,
+    )
     .join("");
 }
 
@@ -435,7 +674,7 @@ function buildQueryHighlights(highlights) {
 
   if (highlights.highest_momentum_term) {
     cards.push({
-      label: "Hoechste Dynamik",
+      label: "Höchste Dynamik",
       value: highlights.highest_momentum_term.name,
       meta: `${highlights.highest_momentum_term.high_momentum_count} starke Rising Queries`,
     });
@@ -444,7 +683,7 @@ function buildQueryHighlights(highlights) {
   if (cards.length === 0) {
     queryHighlights.innerHTML = `
       <article class="panel empty-panel">
-        <p class="empty-title">Keine Query-Highlights verfuegbar</p>
+        <p class="empty-title">Keine Query-Highlights verfügbar</p>
         <p class="empty-copy">Die Highlight-Karten erscheinen, sobald Top- und Rising-Queries geladen wurden.</p>
       </article>
     `;
@@ -468,8 +707,8 @@ function buildQueryCards(queryInsights) {
   if (!queryInsights || queryInsights.length === 0) {
     queryCards.innerHTML = `
       <article class="panel empty-panel">
-        <p class="empty-title">Keine Supplement-Signale verfuegbar</p>
-        <p class="empty-copy">Die Detailkarten werden gefuellt, sobald die Query-Analyse Daten liefert.</p>
+        <p class="empty-title">Keine Supplement-Signale verfügbar</p>
+        <p class="empty-copy">Die Detailkarten werden gefüllt, sobald die Query-Analyse Daten liefert.</p>
       </article>
     `;
     return;
@@ -482,6 +721,8 @@ function buildQueryCards(queryInsights) {
       const risingQuery = summary.rising_query;
       const breakoutQueries = (summary.breakout_queries ?? []).slice(0, 3);
       const sharedQueries = (summary.shared_queries ?? []).slice(0, 3);
+      const topQueries = (insight.top_queries ?? []).slice(0, 5);
+      const risingQueries = (insight.rising_queries ?? []).slice(0, 5);
       const meaning = getQueryMeaning(insight);
 
       return `
@@ -508,32 +749,60 @@ function buildQueryCards(queryInsights) {
 
           <div class="query-stats-grid">
             <div class="query-stat">
-              <span>Starke Basisnachfrage</span>
+              <span>Basisnachfrage</span>
               <strong>${formatNumber(summary.top_average_interest)}</strong>
             </div>
             <div class="query-stat">
-              <span>Neue Dynamik</span>
+              <span>Dynamik</span>
               <strong>${formatPercent(summary.rising_average_increase_percent)}</strong>
             </div>
             <div class="query-stat">
-              <span>Basis + Wachstum</span>
+              <span>Überschneidung</span>
               <strong>${formatNumber(summary.shared_query_count)}</strong>
             </div>
             <div class="query-stat">
-              <span>Neue Chancenthemen</span>
+              <span>Chancenthemen</span>
               <strong>${formatNumber(summary.high_momentum_count)}</strong>
             </div>
           </div>
 
-          <div class="query-tag-group">
-            <p class="kpi-label">Neue Breakout-Themen</p>
-            <div class="query-tags">${renderTagList(breakoutQueries, "Keine Breakouts")}</div>
-          </div>
+          <details class="detail-panel">
+            <summary>Top und Rising Queries anzeigen</summary>
+            <div class="query-evaluation-grid">
+              <div class="query-list-block">
+                <div class="query-list-head">
+                  <p class="kpi-label">Top Queries</p>
+                  <span>Etablierte Nachfrage</span>
+                </div>
+                <ol class="query-ranked-list">
+                  ${renderQueryRows(topQueries, "Keine Top Queries")}
+                </ol>
+              </div>
 
-          <div class="query-tag-group">
-            <p class="kpi-label">Bereits sichtbar und weiter steigend</p>
-            <div class="query-tags">${renderTagList(sharedQueries, "Keine Ueberschneidung")}</div>
-          </div>
+              <div class="query-list-block">
+                <div class="query-list-head">
+                  <p class="kpi-label">Rising Queries</p>
+                  <span>Neue Dynamik</span>
+                </div>
+                <ol class="query-ranked-list">
+                  ${renderQueryRows(risingQueries, "Keine Rising Queries")}
+                </ol>
+              </div>
+            </div>
+          </details>
+
+          <details class="detail-panel">
+            <summary>Breakouts und Überschneidungen anzeigen</summary>
+            <div class="query-tag-group">
+              <p class="kpi-label">Neue Breakout-Themen</p>
+              <div class="query-tags">${renderTagList(breakoutQueries, "Keine Breakouts")}</div>
+            </div>
+
+            <div class="query-tag-group">
+              <p class="kpi-label">Bereits sichtbar und weiter steigend</p>
+              <div class="query-tags">${renderTagList(sharedQueries, "Keine Überschneidung")}</div>
+            </div>
+          </details>
         </article>
       `;
     })
@@ -629,7 +898,7 @@ function buildBarChart(terms) {
           <div class="bar-row">
             <div class="bar-head">
               <strong>${escapeHtml(term.name)}</strong>
-              <span>Mean ${formatNumber(term.mean)} · Peak ${formatNumber(term.peak)}</span>
+              <span>Durchschnitt ${formatNumber(term.mean)} · Peak ${formatNumber(term.peak)}</span>
             </div>
             <div class="bar-stack">
               <div class="bar-track">
@@ -683,7 +952,7 @@ async function loadDashboard() {
     buildTable(terms);
     buildAnalysisSummary(analysisPayload.data, businessUseCases, queryHighlightsData);
     buildAnalysisBullets(analysisPayload.data, businessUseCases, queryHighlightsData);
-    buildAnalysisBrief(analysisPayload.data, businessUseCases);
+    buildDashboardAnalysisText(analysisPayload.analysis, analysisPayload.data, businessUseCases);
     buildUseCases(businessUseCases);
     buildQueryHighlights(queryHighlightsData);
     buildQueryCards(queryInsights);
@@ -691,12 +960,12 @@ async function loadDashboard() {
     buildLineChart(timeseriesPayload.series);
     buildBarChart(terms);
 
-    analysisSource.textContent = `Quelle: ${analysisPayload.analysis_source}${analysisPayload.model ? ` · ${analysisPayload.model}` : ""}`;
+    analysisSource.textContent = `Quelle: ${formatAnalysisSource(analysisPayload.analysis_source)}${analysisPayload.model ? ` · ${analysisPayload.model}` : ""}`;
     setStatus("System bereit", "ready");
   } catch (error) {
     analysisSource.textContent = "Quelle: Fehler";
     analysisText.textContent =
-      "Das Dashboard konnte die Daten nicht laden. Bitte pruefe, ob Data Service und AI Service laufen.";
+      "Das Dashboard konnte die Daten nicht laden. Bitte prüfe, ob Data Service und AI Service laufen.";
     analysisSummaryGrid.innerHTML = "";
     analysisBulletList.innerHTML = "";
     setStatus("Fehler beim Laden", "error");
@@ -713,5 +982,18 @@ async function loadDashboard() {
   }
 }
 
+navLinks.forEach((link) => {
+  link.addEventListener("click", () => {
+    const viewId = link.getAttribute("href")?.replace("#", "");
+
+    if (viewId) {
+      activateView(viewId);
+    }
+  });
+});
+
+window.addEventListener("hashchange", () => activateView());
+
+activateView();
 refreshButton.addEventListener("click", loadDashboard);
 loadDashboard();
